@@ -1,0 +1,57 @@
+[project]
+name = "rivapi"
+version = "0.1.0"
+description = "Unified access to hydrological time series APIs in Python"
+readme = "README.md"
+authors = [
+  {name = "Simon Moulds", email = "sim.moulds@gmail.com"}
+]
+maintainers = [
+  {name = "Simon Moulds", email = "sim.moulds@gmail.com"}
+]
+classifiers = [
+    # TODO
+]
+license = {text = "MIT"}
+dependencies = [
+  "typer"
+]
+requires-python = ">= 3.10"
+
+[project.optional-dependencies]
+test = [
+    "coverage",  # testing
+    "pytest",  # testing
+    "ruff",  # linting
+    "ty", # checking types
+    "ipdb", # debugging
+]
+
+[project.urls]
+bugs = "https://github.com/simonmoulds/rivapi/issues"
+changelog = "https://github.com/simonmoulds/rivapi/blob/master/changelog.md"
+homepage = "https://github.com/simonmoulds/rivapi"
+
+[project.scripts]
+rivapi = "rivapi.cli:app"
+
+[tool.ty]
+# All rules are enabled as "error" by default; no need to specify unless overriding.
+# Example override: relax a rule for the entire project (uncomment if needed).
+# rules.TY015 = "warn"  # For invalid-argument-type, warn instead of error.
+
+[tool.ruff]
+line-length = 120
+
+[tool.ruff.lint]
+select = [
+    "E",   # pycodestyle errors
+    "W",   # pycodestyle warnings
+    "F",   # Pyflakes
+    "I",   # isort
+    "B",   # flake8-bugbear
+    "UP",  # pyupgrade
+]
+
+[tool.uv]
+package = true
