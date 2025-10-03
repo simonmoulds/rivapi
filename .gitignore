@@ -1,5 +1,8 @@
 # From https://github.com/github/gitignore/blob/main/Python.gitignore 2025-07-30
 
+# User-defined
+raw-data/
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[codz]
