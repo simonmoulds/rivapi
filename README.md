@@ -5,13 +5,13 @@
 
 Unified access to hydrological time series APIs in Python
 
-* PyPI package: https://pypi.org/project/rivapi/
-* Free software: MIT License
-* Documentation: https://rivapi.readthedocs.io.
-
 ## Features
 
-* TODO
+* In progress
+
+## Usage 
+
+* In progress
 
 ## Credits
 
