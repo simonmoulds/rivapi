@@ -5,7 +5,7 @@ import pandas as pd
 from rich.progress import Progress
 from abc import ABC, abstractmethod
 from pathlib import Path
-from typing import Union, List, Optional
+from typing import Union, List, Optional, Dict, Any
 
 
 class BaseClient(ABC):
@@ -15,6 +15,9 @@ class BaseClient(ABC):
     VARIABLE_MAP = {}
     FREQUENCY_MAP = {}
     STATISTIC_MAP = {}
+    DEFAULT_VARIABLE = 'discharge'
+    DEFAULT_FREQUENCY = 'daily'
+    DEFAULT_STATISTIC = 'mean'
 
     def __init__(self, 
                  metadata: Optional[Union[Path, pd.DataFrame]] = None):
@@ -35,7 +38,7 @@ class BaseClient(ABC):
         if self.metadata is not None:
             required_cols = [self.SITE_COLUMN_NAME]
             if not all(col in self.metadata.columns for col in required_cols):
-                raise ValueError(f"Metadata is missing required columns: {required_cols}")
+                raise ValueError(f"Metadata is missing required column: {required_cols}")
 
     def _parse_mapped_argument(self, 
                                arg: Optional[Union[str, List[str]]] = None,
@@ -70,11 +73,16 @@ class BaseClient(ABC):
                          frequency: Optional[str] = None,
                          statistic: Optional[str] = None,
                          start: pd.Timestamp = None, 
-                         end: pd.Timestamp = None): 
+                         end: pd.Timestamp = None) -> Dict[str, Any]:
+
+        variable = variable or self.DEFAULT_VARIABLE 
+        frequency = frequency or self.DEFAULT_FREQUENCY
+        statistic = statistic or self.DEFAULT_STATISTIC
 
         variable = self._parse_mapped_argument(variable, 'variable', self.VARIABLE_MAP)
         frequency = self._parse_mapped_argument(frequency, 'frequency', self.FREQUENCY_MAP)
         statistic = self._parse_mapped_argument(statistic, 'statistic', self.STATISTIC_MAP)
+
         start, end = self._parse_start_and_end_times(start, end)
         return {'variable': variable, 'frequency': frequency, 'statistic': statistic, 'start': start, 'end': end}
 
@@ -106,11 +114,10 @@ class BaseClient(ABC):
                              statistic: str, 
                              start: str,
                              end: str) -> pd.DataFrame:
-        """Get data for a single site (implemented by subclass)."""
         pass
 
     def get_sites(self,
-                  sites: Union[str, List[str]],
+                  sites: Optional[Union[str, List[str]]] = None,
                   sites_from_metadata: bool = False): 
 
         if sites is None: 
@@ -120,7 +127,7 @@ class BaseClient(ABC):
         sites = list(sites) 
 
         if sites_from_metadata:
-            if not self.metadata:
+            if self.metadata is None:
                 raise ValueError(f'No metadata is available!') 
             if self.SITE_COLUMN_NAME not in self.metadata: 
                 raise ValueError(f'Metadata does not contain the site column name: {self.SITE_COLUMN_NAME}')
@@ -132,6 +139,9 @@ class BaseClient(ABC):
         if not sites:
             raise ValueError("No sites provided. Pass `sites` or set `sites_from_metadata=True`.")
         return sites 
+
+    def get_sites_from_metadata(self): 
+        return self.get_sites(sites=None, sites_from_metadata=True)
 
     def get_data(self, 
                  sites: Union[str, List[str]] = None, 

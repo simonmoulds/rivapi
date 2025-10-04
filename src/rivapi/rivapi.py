@@ -18,17 +18,7 @@ def _initialize_cache(no_cache):
     return None
 
 
-def get_client(source): 
-    source = source.lower()
-    if source == 'usgs': 
-        return usgs.NWIS_Client 
-    elif source == 'eaufrance': 
-        return eaufrance.Eaufrance_Client
-    else: 
-        raise NotImplementedError
-
-
-def get_sites(site: Optional[Union[str, List[str]]] = None, 
+def _get_sites(site: Optional[Union[str, List[str]]] = None, 
               site_file: Optional[Path] = None) -> list: 
 
     site_list_cli = []
@@ -43,6 +33,16 @@ def get_sites(site: Optional[Union[str, List[str]]] = None,
             site_list_file += [line.strip() for line in f if line.strip()]
     site_list = list(dict.fromkeys(site_list_cli + site_list_file))
     return site_list
+
+
+def get_client(source): 
+    source = source.lower()
+    if source == 'usgs': 
+        return usgs.NWIS_Client 
+    elif source == 'eaufrance': 
+        return eaufrance.Eaufrance_Client
+    else: 
+        raise NotImplementedError
 
 
 def get_metadata(
@@ -73,16 +73,31 @@ def get_data(
     metadata: Optional[Union[Path, pd.DataFrame]] = None, 
     variable: Union[str, List[str]] = None, 
     frequency: str = 'daily', 
+    statistic: str = 'mean',
     start: Optional[pd.Timestamp] = None,
     end: Optional[pd.Timestamp] = None,
     write: Optional[bool] = False,
     output_dir: Optional[Path] = None,
     overwrite: bool = False,
     append: bool = False,
-    return_data: bool = False,
+    return_data: bool = True,
     no_cache: bool = True
 ):
     _initialize_cache(no_cache)
-    sites = get_sites(site, site_file)
+    sites = _get_sites(site, site_file)
     client = get_client(source)(metadata)
-    client.get_data(sites, sites_from_metadata, variable, frequency, start, end, write, output_dir, overwrite, append, return_data)
+    data = client.get_data(
+        sites, 
+        sites_from_metadata, 
+        variable, 
+        frequency, 
+        statistic,
+        start, 
+        end, 
+        write, 
+        output_dir, 
+        overwrite, 
+        append, 
+        return_data
+    )
+    return data if return_data else None

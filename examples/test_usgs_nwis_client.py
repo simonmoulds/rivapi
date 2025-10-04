@@ -1,20 +1,22 @@
 
 import pandas as pd
 
-from rivapi.clients import usgs, eaufrance, bom
+from rivapi.rivapi import get_metadata, get_data, get_client
 
-client = usgs.NWIS_Client()
-client.get_metadata()
-stations = ['02339495']
-data = client.get_data(sites=stations, variable='discharge', frequency='daily', start=pd.Timestamp('2020-01-01'), end=pd.Timestamp('2020-01-31'), write=False, return_data=True)
-data = client.get_data(sites=stations, variable='discharge', frequency='daily', write=False, return_data=True)
+metadata = get_metadata(source='usgs', variable='discharge', save=False)
+stations = metadata['site_no'].tolist()[slice(0, 10)]
+data = get_data( # This will fall back on the default variable/frequency/statistic
+    source='usgs', 
+    site=stations, 
+    start=pd.Timestamp('2020-01-01'), 
+    end=pd.Timestamp('2020-01-31')
+)
 
-client = eaufrance.Eaufrance_Client()
-client.get_metadata()
-stations = ['1011000101']
-data = client.get_data(sites=stations, variable='discharge', frequency='daily', statistic='mean', start=pd.Timestamp('2020-01-01'), end=pd.Timestamp('2020-01-31'), write=False, return_data=True)
-
-client = bom.BOMWater_Client()
-client.get_metadata(variable='discharge')
-stations = ['403213']
-data = client.get_data(sites=stations, variable='discharge', frequency='daily', statistic='mean', start=pd.Timestamp('2020-01-01'), end=pd.Timestamp('2020-01-31'), write=False, return_data=True)
+client = get_client('usgs')(metadata)
+stations = client.get_sites_from_metadata()
+data = client.get_data(
+    sites=stations[0:10], 
+    start=pd.Timestamp('2020-01-01'), 
+    end=pd.Timestamp('2020-01-31'), 
+    return_data=True
+)

@@ -27,6 +27,9 @@ class Eaufrance_Client(BaseClient):
         'maximum': 'IX',
         'minimum': 'IN'
     }
+    DEFAULT_VARIABLE = 'discharge'
+    DEFAULT_FREQUENCY = 'daily'
+    DEFAULT_STATISTIC = 'mean'
 
     def _parse_start_and_end_times(self, start, end):
 
@@ -47,13 +50,21 @@ class Eaufrance_Client(BaseClient):
         end = _parse_time(end) 
         return super()._parse_start_and_end_times(start, end)
 
-    def _parse_arguments(self, variable = None, frequency = None, statistic = None, start = None, end = None):
+    def _parse_arguments(self, 
+                         variable = None, 
+                         frequency = None, 
+                         statistic = None, 
+                         start = None, 
+                         end = None):
+
+        # TODO set some sensible default arguments 
         args = super()._parse_arguments(variable, frequency, statistic, start, end)
         variable, frequency, statistic = args['variable'], args['frequency'], args['statistic']
 
         if (variable == 'H') & (statistic in ['mn', 'IN']): 
             raise ValueError('Stage is only available as a maximum instantaneous value from the Eaufrance API')
 
+        # TODO support multiple variables
         # variables = [
         #     f{a}{b}{c}
         #     for a, b, c in itertools.product(variable, frequency, statistic)

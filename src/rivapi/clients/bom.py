@@ -1,12 +1,10 @@
 #!/usr/bin/env python3
 
-import time
 import pandas as pd
 
 from rivapi.decorators import rate_limited, retry_on_failure
 from rivapi.clients.base import BaseClient 
 
-from rich.progress import Progress
 from pathlib import Path 
 from typing import List, Union, Optional
 
